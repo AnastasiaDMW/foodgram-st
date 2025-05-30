@@ -26,4 +26,4 @@ jobs:
       run: |
         python -m ruff check backend/
         cd backend/
-        python manage.py test
+        python manage.py test api --verbosity=3
