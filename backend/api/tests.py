@@ -91,10 +91,6 @@ class RecipesAPITestCase(TestCase):
             amount=200
         )
         
-        other_ingredient = Ingredient.objects.create(
-            name='Другой ингредиент',
-            measurement_unit='шт'
-        )
         Recipe.objects.create(
             author=self.user,
             name='Другой рецепт',
