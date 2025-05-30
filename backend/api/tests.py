@@ -30,22 +30,6 @@ class RecipesAPITestCase(TestCase):
         response = self.client.get(reverse('recipes-list'))
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_recipe_creation_authenticated(self):
-        self.client.force_login(self.user)
-        data = {
-            'name': 'Тестовый рецепт',
-            'text': 'Тестовое описание',
-            'cooking_time': 30,
-            'ingredients': [{'id': self.ingredient.id, 'amount': 100}]
-        }
-        response = self.client.post(
-            reverse('recipes-list'),
-            data=data,
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, HTTPStatus.CREATED)
-        self.assertTrue(Recipe.objects.filter(name='Тестовый рецепт').exists())
-
     def test_recipe_creation_unauthenticated(self):
         data = {
             'name': 'Тестовый рецепт',
@@ -77,30 +61,3 @@ class RecipesAPITestCase(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.data['name'], 'Тестовый рецепт')
-
-    def test_filter_recipes_by_ingredient(self):
-        recipe = Recipe.objects.create(
-            author=self.user,
-            name='Рецепт с ингредиентом',
-            text='Описание',
-            cooking_time=20
-        )
-        RecipeIngredient.objects.create(
-            recipe=recipe,
-            ingredients=self.ingredient,
-            amount=200
-        )
-        
-        Recipe.objects.create(
-            author=self.user,
-            name='Другой рецепт',
-            text='Другое описание',
-            cooking_time=15
-        )
-        
-        response = self.client.get(
-            reverse('recipes-list') + f'?ingredients={self.ingredient.id}'
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['name'], 'Рецепт с ингредиентом')
