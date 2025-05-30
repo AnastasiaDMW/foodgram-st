@@ -120,6 +120,6 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v5
         with:
-          context: ./infra/
+          context: ./nginx/
           push: true
           tags: anastasiadmw/foodgram_gateway:latest 
