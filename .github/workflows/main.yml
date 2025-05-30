@@ -122,4 +122,4 @@ jobs:
         with:
           context: ./nginx/
           push: true
-          tags: anastasiadmw/foodgram_gateway:latest 
+          tags: anastasiadmw/foodgram_nginx:latest 

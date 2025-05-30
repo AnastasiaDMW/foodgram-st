@@ -12,21 +12,19 @@ services:
     volumes:
       - pg_database_data:/var/lib/postgresql/data
   frontend:
-    build:
-      context: anastasiadmw/foodgram-frontend:v0.0.1
-      dockerfile: Dockerfile
+    build: anastasiadmw/foodgram_frontend
     volumes:
       - ./frontend/:/app/result_build/
   backend:
     depends_on:
       - db
-    build: anastasiadmw/foodgram-backend:v0.0.2
+    build: anastasiadmw/foodgram_backend
     env_file: .env
     volumes:
       - static:/backend_static
       - media:/app/media
   nginx:
-    build: anastasiadmw/foodgram-nginx:v0.0.1
+    build: anastasiadmw/foodgram_nginx
     depends_on:
       - backend
       - db
