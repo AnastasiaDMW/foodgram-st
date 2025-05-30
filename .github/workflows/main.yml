@@ -63,4 +63,4 @@ jobs:
         with:
           context: ./backend/
           push: true
-          tags: ваш-логин-на-docker-hub/foodgram_backend:latest
+          tags: anastasiadmw/foodgram_backend:latest
