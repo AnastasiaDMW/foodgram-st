@@ -16,7 +16,6 @@ class IngredientsSearchFilter(SearchFilter):
 
 
 class RecipeFilterSet(FilterSet):
-    author = filters.ModelChoiceFilter(queryset=User.objects.all())
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart'
@@ -25,13 +24,14 @@ class RecipeFilterSet(FilterSet):
     class Meta:
         model = Recipe
         fields = ('author', 'is_favorited', 'is_in_shopping_cart')
+        
+    def _filter_by_user_relation(self, queryset, relation_field, value):
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(**{f"{relation_field}__user": self.request.user})
+        return queryset
 
     def filter_is_favorited(self, queryset, name, value):
-        if value and self.request.user.is_authenticated:
-            return queryset.filter(favorite__user=self.request.user)
-        return queryset
+        return self._filter_by_user_relation(queryset, "favorite", value)
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        if value and self.request.user.is_authenticated:
-            return queryset.filter(shopping_cart__user=self.request.user)
-        return queryset
+        return self._filter_by_user_relation(queryset, "shopping_cart", value)

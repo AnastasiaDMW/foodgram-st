@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.import_ingredients()
-        self.import_recipes()
+        # self.import_recipes()
 
     def import_ingredients(self):
         with open('data/ingredients.json', 'r', encoding='utf-8') as f:

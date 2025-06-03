@@ -23,14 +23,14 @@ from recipes.models import (
     Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart, ShortLink
 )
 from users.models import Subscription, User
-from .serializer import (
+from .serializers import (
     IngredientsSerializer, CustomUserSerializer, SubscribeSerializer,
     UserSubscriptionsSerializer, RecipeSerializer, CreateRecipeSerializer,
     FavoriteSerializer, FavoriteShoppingSerializer, ShoppingCartSerializer,
     UserAvatarSerializer
 )
 from .filters import IngredientsSearchFilter, RecipeFilterSet
-from backend.permission import IsAuthorRecipe
+from backend.permissions import IsOwnerOrReadOnly
 
 
 class IngredientsViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
@@ -50,7 +50,7 @@ class RecipeViewSet(ModelViewSet):
         if self.action == 'create':
             return (permissions.IsAuthenticated(),)
         if self.action in ('partial_update', 'destroy'):
-            return (IsAuthorRecipe(),)
+            return (IsOwnerOrReadOnly(),)
         return super().get_permissions()
 
     def get_serializer_class(self):
