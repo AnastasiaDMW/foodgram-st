@@ -175,7 +175,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def get_short_link(self, request, pk=None):
         short_link, created = ShortLink.objects.get_or_create(
-            recipe_id=str(pk),
+            recipe=Recipe.objects.get(pk=pk),
             defaults={'key': secrets.token_urlsafe(6)[:6]}
         )
 
@@ -286,4 +286,4 @@ class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
 class ShortLinkRedirectView(APIView):
     def get(self, request, key):
         short_link = get_object_or_404(ShortLink, key=key)
-        return redirect(f'/recipes/{short_link.recipe_id}/')
+        return redirect(f'/recipes/{short_link.recipe.id}/')

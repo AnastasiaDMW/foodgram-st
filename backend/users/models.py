@@ -3,8 +3,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 
-from backend.settings import REGEX_USERNAME
-
+from backend.settings import (
+    REGEX_USERNAME,
+    MAX_LENGTH_USER_EMAIL,
+    MAX_LENGTH_USER_USERNAME,
+    MAX_LENGTH_USER_FIRSTNAME,
+    MAX_LENGTH_USER_LASTNAME
+)
 
 class User(AbstractUser):
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
@@ -12,7 +17,7 @@ class User(AbstractUser):
 
     email = models.EmailField(
         verbose_name='Электронная почта',
-        max_length=254,
+        max_length=MAX_LENGTH_USER_EMAIL,
         unique=True,
         error_messages={
             'field_name': 'email',
@@ -20,7 +25,7 @@ class User(AbstractUser):
     )
     username = models.CharField(
         verbose_name='Юзернейм',
-        max_length=150,
+        max_length=MAX_LENGTH_USER_USERNAME,
         unique=True,
         db_index=True,
         error_messages={
@@ -30,11 +35,11 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=MAX_LENGTH_USER_FIRSTNAME,
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=MAX_LENGTH_USER_LASTNAME,
     )
     avatar = models.ImageField(
         upload_to='users',
