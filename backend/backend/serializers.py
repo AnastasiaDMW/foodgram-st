@@ -32,8 +32,13 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientAmountSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    amount = serializers.IntegerField()
+    id = serializers.IntegerField() 
+    amount = serializers.IntegerField(
+        min_value=MIN_AMOUNT_COUNT,
+        error_messages={
+            'min_value': f'Количество ингредиента не может быть меньше {MIN_AMOUNT_COUNT}.'
+        }
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -54,13 +59,7 @@ class RecipeIngridientsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-class RecipeSubscribeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
-class FavoriteShoppingSerializer(serializers.ModelSerializer):
+class RecipeShortInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -92,13 +91,13 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         ]
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, required=True)
+class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
     username = serializers.RegexField(
-        regex=REGEX_USERNAME, max_length=150, required=True
+        regex=REGEX_USERNAME, required=True
     )
-    first_name = serializers.CharField(max_length=150, required=True)
-    last_name = serializers.CharField(max_length=150, required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
     is_subscribed = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=True)
     avatar = Base64ImageField()
@@ -113,7 +112,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
         return (user.is_authenticated and 
-                Subscription.objects.filter(subscriber=user, author=obj).exists())
+                user.subscriber.filter(author=obj).exists())
 
 
 class UserAvatarSerializer(serializers.ModelSerializer):
@@ -165,14 +164,14 @@ class SubscribeSerializer(serializers.ModelSerializer):
             except ValueError:
                 pass
         
-        return RecipeSubscribeSerializer(
+        return RecipeShortInfoSerializer(
             recipes, many=True, context=self.context
         ).data
 
 
 class UserSubscriptionsSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    recipes = RecipeSubscribeSerializer(many=True, read_only=True)
+    recipes = RecipeShortInfoSerializer(many=True, read_only=True)
     recipes_count = serializers.SerializerMethodField()
     avatar = Base64ImageField()
 
@@ -186,7 +185,7 @@ class UserSubscriptionsSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
         return (user.is_authenticated and
-                Subscription.objects.filter(subscriber=user, author=obj).exists())
+                user.subscriber.filter(author=obj).exists())
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -206,7 +205,7 @@ class UserSubscriptionsSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    author = CustomUserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = RecipeIngridientsSerializer(
         many=True, read_only=True, source='recipes_ingredient'
     )
@@ -260,11 +259,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, value):
         ingredient_ids = set()
         for ingredient in value:
-            if ingredient['amount'] < MIN_AMOUNT_COUNT:
-                raise ValidationError(
-                    f'Минимальное количество ингредиента должно быть '
-                    f'{MIN_AMOUNT_COUNT}.'
-                )
             if ingredient['id'] in ingredient_ids:
                 raise ValidationError('Ингредиенты не должны повторяться.')
             ingredient_ids.add(ingredient['id'])

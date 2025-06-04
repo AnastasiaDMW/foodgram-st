@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from django.db.models import Sum, Subquery
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -24,9 +24,9 @@ from recipes.models import (
 )
 from users.models import Subscription, User
 from .serializers import (
-    IngredientsSerializer, CustomUserSerializer, SubscribeSerializer,
+    IngredientsSerializer, UserSerializer, SubscribeSerializer,
     UserSubscriptionsSerializer, RecipeSerializer, CreateRecipeSerializer,
-    FavoriteSerializer, FavoriteShoppingSerializer, ShoppingCartSerializer,
+    FavoriteSerializer, RecipeShortInfoSerializer, ShoppingCartSerializer,
     UserAvatarSerializer
 )
 from .filters import IngredientsSearchFilter, RecipeFilterSet
@@ -78,7 +78,7 @@ class RecipeViewSet(ModelViewSet):
             if serializer.is_valid():
                 serializer.save()
                 return Response(
-                    FavoriteShoppingSerializer(
+                    RecipeShortInfoSerializer(
                         recipe, context={'request': request}
                     ).data,
                     status=status.HTTP_201_CREATED,
@@ -183,7 +183,7 @@ class RecipeViewSet(ModelViewSet):
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
 
     def get_permissions(self):
         if self.action in ('retrieve', 'list'):
