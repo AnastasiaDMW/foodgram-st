@@ -1,4 +1,5 @@
-import json, os
+import json
+import os
 
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
