@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from django.db.models import Sum
+from django.db.models import Sum, Subquery
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -42,7 +42,7 @@ class IngredientsViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all().order_by('-id')
+    queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilterSet
 
@@ -62,12 +62,8 @@ class RecipeViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def _handle_favorite_shopping_action(
-        self, request, pk, model_class, serializer_class, error_message
+        self, request, recipe, model_class, serializer_class, error_message
     ):
-        recipe = self.get_object()
-        if not recipe:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
         user = request.user
         instance = model_class.objects.filter(user=user, recipe=recipe).first()
 
@@ -105,7 +101,7 @@ class RecipeViewSet(ModelViewSet):
     def favorite(self, request, pk=None):
         return self._handle_favorite_shopping_action(
             request,
-            pk,
+            self.get_object(),
             Favorite,
             FavoriteSerializer,
             'Рецепт уже в избранном.'
@@ -119,7 +115,7 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk=None):
         return self._handle_favorite_shopping_action(
             request,
-            pk,
+            self.get_object(),
             ShoppingCart,
             ShoppingCartSerializer,
             'Рецепт уже в корзине.'
@@ -265,22 +261,19 @@ class CustomUserViewSet(UserViewSet):
             user.avatar = None
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserSubscriptionsViewSet(ListModelMixin, GenericViewSet):
-    serializer_class = UserSubscriptionsSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        current_user = self.request.user
-        authors = Subscription.objects.filter(
-            subscriber=current_user
-        ).values_list('author')
-        author_users = User.objects.filter(id__in=authors)
-        recipes = Recipe.objects.filter(author__in=author_users)
-
-        self.request.author_users_and_recipes = {'recipes': recipes}
-        return author_users
+        
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[permissions.IsAuthenticated],
+        serializer_class=UserSubscriptionsSerializer,
+    )
+    def subscriptions(self, request):
+        queryset = User.objects.filter(author__subscriber=request.user) .prefetch_related('recipes') 
+        
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class ShortLinkRedirectView(APIView):

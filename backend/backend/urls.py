@@ -19,7 +19,6 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     IngredientsViewSet,
-    UserSubscriptionsViewSet,
     CustomUserViewSet,
     RecipeViewSet,
     ShortLinkRedirectView
@@ -30,11 +29,6 @@ router.register(
     r'ingredients',
     IngredientsViewSet,
     basename='ingredients'
-)
-router.register(
-    r'users/subscriptions',
-    UserSubscriptionsViewSet,
-    basename='subscriptions'
 )
 router.register(
     r'users',
