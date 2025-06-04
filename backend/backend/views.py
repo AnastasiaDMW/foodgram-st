@@ -2,35 +2,45 @@ import os
 import secrets
 
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
-
-from reportlab.pdfgen import canvas
+from djoser.views import UserViewSet
+from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.pagesizes import letter
-
+from reportlab.pdfgen import canvas
 from rest_framework import permissions, status
 from rest_framework.decorators import action
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from djoser.views import UserViewSet
 
+from backend.permissions import IsOwnerOrReadOnly
 from recipes.models import (
-    Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart, ShortLink
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    ShortLink
 )
 from users.models import Subscription, User
-from .serializers import (
-    IngredientsSerializer, UserSerializer, SubscribeSerializer,
-    UserSubscriptionsSerializer, RecipeSerializer, CreateRecipeSerializer,
-    FavoriteSerializer, RecipeShortInfoSerializer, ShoppingCartSerializer,
-    UserAvatarSerializer
-)
+
 from .filters import IngredientsSearchFilter, RecipeFilterSet
-from backend.permissions import IsOwnerOrReadOnly
+from .serializers import (
+    CreateRecipeSerializer,
+    FavoriteSerializer,
+    IngredientsSerializer,
+    RecipeSerializer,
+    RecipeShortInfoSerializer,
+    ShoppingCartSerializer,
+    SubscribeSerializer,
+    UserAvatarSerializer,
+    UserSerializer,
+    UserSubscriptionsSerializer
+)
 
 
 class IngredientsViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
@@ -261,7 +271,7 @@ class CustomUserViewSet(UserViewSet):
             user.avatar = None
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
     @action(
         detail=False,
         methods=['get'],
@@ -269,8 +279,9 @@ class CustomUserViewSet(UserViewSet):
         serializer_class=UserSubscriptionsSerializer,
     )
     def subscriptions(self, request):
-        queryset = User.objects.filter(author__subscriber=request.user) .prefetch_related('recipes') 
-        
+        queryset = User.objects.filter(
+            author__subscriber=request.user) .prefetch_related('recipes')
+
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)

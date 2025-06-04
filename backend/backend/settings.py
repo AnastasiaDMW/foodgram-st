@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,9 +21,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-eb4z!!auy@z2^mvlfs(=w+hnt64qyy956(l13$5g9ectom@i!j')
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-eb4z!!auy@z2^mvlfs(=w+hnt64qyy956(l13$5g9ectom@i!j')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 
 # Application definition
 
@@ -115,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-DEBUG = os.getenv('DEBUG', True)
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -137,7 +139,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/backend_static'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media' 
+MEDIA_ROOT = '/app/media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -154,7 +156,7 @@ MAX_LENGTH_SHORT_LINK_KEY = 10
 MIN_COOKING_TIME = 1
 MIN_AMOUNT_COUNT = 1
 MIN_INGREDIENTS_COUNT = 1
-REGEX_USERNAME = '^[\w.@+-]+$'
+REGEX_USERNAME = '^[\\w.@+-]+$'
 DEFAULT_AVATAR = 'user/default_avatar.png'
 
 REST_FRAMEWORK = {

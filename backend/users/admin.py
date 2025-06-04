@@ -3,7 +3,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
-from .models import User, Subscription
+
+from .models import Subscription, User
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -35,6 +36,7 @@ class UserAdmin(BaseUserAdmin):
     add_form = CustomUserCreationForm
 
     list_display = ('email', 'username', 'first_name', 'last_name')
+    search_fields = ('email', 'username')
     fieldsets = (
         (
             None,
@@ -46,7 +48,8 @@ class UserAdmin(BaseUserAdmin):
                 ),
             },
         ),
-        (_('Personal info'), {'fields': ('username', 'first_name', 'last_name', 'avatar')}),
+        (_('Personal info'), {
+         'fields': ('username', 'first_name', 'last_name', 'avatar')}),
         (
             _('Permissions'),
             {

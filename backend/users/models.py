@@ -4,12 +4,13 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 from backend.settings import (
-    REGEX_USERNAME,
     MAX_LENGTH_USER_EMAIL,
-    MAX_LENGTH_USER_USERNAME,
     MAX_LENGTH_USER_FIRSTNAME,
-    MAX_LENGTH_USER_LASTNAME
+    MAX_LENGTH_USER_LASTNAME,
+    MAX_LENGTH_USER_USERNAME,
+    REGEX_USERNAME
 )
+
 
 class User(AbstractUser):
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')

@@ -1,7 +1,10 @@
 import json
-from django.core.management.base import BaseCommand
+
 from django.contrib.auth.hashers import make_password
+from django.core.management.base import BaseCommand
+
 from users.models import User
+
 
 class Command(BaseCommand):
     help = 'Import model from a JSON file'
@@ -24,7 +27,8 @@ class Command(BaseCommand):
                 for item in data
             ]
             User.objects.bulk_create(users)
-            self.stdout.write(self.style.SUCCESS('Successfully imported users'))
+            self.stdout.write(self.style.SUCCESS(
+                'Successfully imported users'))
 
     def import_admin(self):
         with open('data/admin.json', 'r', encoding='utf-8') as f:
@@ -43,4 +47,5 @@ class Command(BaseCommand):
                 user.is_superuser = True
                 user.is_staff = True
             User.objects.bulk_create(users)
-            self.stdout.write(self.style.SUCCESS('Successfully imported admin'))
+            self.stdout.write(self.style.SUCCESS(
+                'Successfully imported admin'))

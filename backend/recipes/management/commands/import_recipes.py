@@ -1,7 +1,10 @@
 import json
+
 from django.core.management.base import BaseCommand
+
 from recipes.models import Ingredient, Recipe, RecipeIngredient
 from users.models import User
+
 
 class Command(BaseCommand):
     help = 'Import model from a JSON file'
@@ -21,15 +24,16 @@ class Command(BaseCommand):
                 for item in data
             ]
             Ingredient.objects.bulk_create(ingredients)
-            self.stdout.write(self.style.SUCCESS('Successfully imported ingredients'))
+            self.stdout.write(self.style.SUCCESS(
+                'Successfully imported ingredients'))
 
     def import_recipes(self):
         with open('data/recipes.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
-            
+
             recipes = []
             recipe_ingredients = []
-            
+
             for item in data:
                 recipe = Recipe(
                     author=User.objects.get(pk=item['author']),
@@ -39,23 +43,23 @@ class Command(BaseCommand):
                     image=item['image']
                 )
                 recipes.append(recipe)
-                
+
                 for ing in item['ingredients']:
                     recipe_ingredients.append((
                         recipe,
                         Ingredient.objects.get(pk=ing['id']),
                         ing['amount']
                     ))
-            
+
             Recipe.objects.bulk_create(recipes)
-            
+
             RecipeIngredient.objects.bulk_create([
                 RecipeIngredient(
                     recipe=recipe,
-                    ingredients=ingredient,  # Исправлено с ingredient на ingredients
+                    ingredients=ingredient,
                     amount=amount
                 ) for recipe, ingredient, amount in recipe_ingredients
             ])
-            
-            self.stdout.write(self.style.SUCCESS('Successfully imported recipes'))
 
+            self.stdout.write(self.style.SUCCESS(
+                'Successfully imported recipes'))
