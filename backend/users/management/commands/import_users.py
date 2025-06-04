@@ -1,4 +1,4 @@
-import json
+import json, os
 
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
@@ -10,8 +10,9 @@ class Command(BaseCommand):
     help = 'Import model from a JSON file'
 
     def handle(self, *args, **kwargs):
-        self.import_admin()
-        self.import_users()
+        if os.getenv('DATA_TEST','') == 'True':
+            self.import_admin()
+            self.import_users()
 
     def import_users(self):
         with open('data/users.json', 'r', encoding='utf-8') as f:

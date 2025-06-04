@@ -41,8 +41,11 @@ DB_NAME,
 DB_HOST,
 DB_PORT,
 SECRET_KEY,
-DEBUG
+DEBUG,
+ALLOWED_HOSTS,
+DATA_TEST
 ```
+DATA_TEST отвечает за добавление тестовых данных в базу
 * ### После чего запустите докер командой
 ```
 docker compose up

@@ -1,4 +1,4 @@
-import json
+import json, os
 
 from django.core.management.base import BaseCommand
 
@@ -11,7 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.import_ingredients()
-        # self.import_recipes()
+        if os.getenv('DATA_TEST','') == 'True':
+            self.import_recipes()
 
     def import_ingredients(self):
         with open('data/ingredients.json', 'r', encoding='utf-8') as f:
