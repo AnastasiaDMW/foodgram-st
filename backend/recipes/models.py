@@ -8,7 +8,8 @@ from backend.settings import (
     MAX_LENGTH_RECIPE_NAME,
     MAX_LENGTH_SHORT_LINK_KEY,
     MIN_AMOUNT_COUNT,
-    MIN_COOKING_TIME
+    MIN_COOKING_TIME,
+    MAX_LENGTH_MEASUREMENT_UNIT
 )
 from users.models import User
 
@@ -19,8 +20,8 @@ class Ingredient(models.Model):
         max_length=MAX_LENGTH_INGREDIENT_NAME,
         verbose_name='Название')
     measurement_unit = models.CharField(
-        max_length=64, verbose_name='Единицы измерения'
-    )
+        max_length=MAX_LENGTH_MEASUREMENT_UNIT,
+        verbose_name='Единицы измерения')
 
     class Meta:
         verbose_name = 'Ингредиент'

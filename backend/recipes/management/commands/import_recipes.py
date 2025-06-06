@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.import_ingredients()
-        if os.getenv('DATA_TEST','') == 'True':
+        if os.getenv('DATA_TEST', '') == 'True':
             self.import_recipes()
 
     def import_ingredients(self):

@@ -14,41 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path, re_path
-from rest_framework.routers import DefaultRouter
-
-from .views import (
-    CustomUserViewSet,
-    IngredientsViewSet,
-    RecipeViewSet,
-    ShortLinkRedirectView
-)
-
-router = DefaultRouter()
-router.register(
-    r'ingredients',
-    IngredientsViewSet,
-    basename='ingredients'
-)
-router.register(
-    r'users',
-    CustomUserViewSet,
-    basename='users'
-)
-router.register(
-    r'recipes',
-    RecipeViewSet,
-    basename='recipes'
-)
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/auth/', include('djoser.urls')),
-    re_path(r'api/auth/', include('djoser.urls.authtoken')),
-    path(
-        'api/s/<str:key>/',
-        ShortLinkRedirectView.as_view(),
-        name='short-link-redirect'
-    ),
+    path('api/', include('api.urls')),
 ]

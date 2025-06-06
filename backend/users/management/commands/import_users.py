@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = 'Import model from a JSON file'
 
     def handle(self, *args, **kwargs):
-        if os.getenv('DATA_TEST','') == 'True':
+        if os.getenv('DATA_TEST', '') == 'True':
             self.import_admin()
             self.import_users()
 

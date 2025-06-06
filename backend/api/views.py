@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from backend.permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -36,7 +36,6 @@ from .serializers import (
     RecipeSerializer,
     RecipeShortInfoSerializer,
     ShoppingCartSerializer,
-    SubscribeSerializer,
     UserAvatarSerializer,
     UserSerializer,
     UserSubscriptionsSerializer
@@ -146,7 +145,10 @@ class RecipeViewSet(ModelViewSet):
         )
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = "attachment; filename='shopping_cart.pdf'"
+        response['Content-Disposition'] = (
+            "attachment; "
+            "filename='shopping_cart.pdf'"
+        )
 
         font_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'font/', 'Roboto.ttf'
@@ -187,11 +189,15 @@ class RecipeViewSet(ModelViewSet):
 
         scheme = 'https' if request.is_secure() else 'http'
         return Response({
-            "short-link": f"{scheme}://{request.get_host()}/api/s/{short_link.key}"
+            "short-link": (
+                f"{scheme}://"
+                f"{request.get_host()}/"
+                f"api/s/{short_link.key}"
+            )
         })
 
 
-class CustomUserViewSet(UserViewSet):
+class UserSubscriptionViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -225,12 +231,13 @@ class CustomUserViewSet(UserViewSet):
                     {'detail': 'Вы уже подписались на пользователя.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            serializer = SubscribeSerializer(
-                data={'author': author.id},
-                context={'user': user, 'request': request}
+            serializer = UserSubscriptionsSerializer(
+                user,
+                context={'request': request}
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save(subscriber=user, author=author)
+            Subscription.objects.create(
+                subscriber=user, author=author
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
@@ -252,7 +259,10 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'PUT':
             if not request.data.get('avatar'):
                 return Response(
-                    {'field_name': 'Необходимо предоставить изображение аватара.'},
+                    {
+                        'field_name':
+                            'Необходимо предоставить изображение аватара.'
+                    },
                     status=status.HTTP_400_BAD_REQUEST
                 )
             serializer = UserAvatarSerializer(

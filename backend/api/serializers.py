@@ -136,48 +136,6 @@ class UserAvatarSerializer(serializers.ModelSerializer):
         return instance
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(source='author.email', read_only=True)
-    username = serializers.CharField(source='author.username', read_only=True)
-    first_name = serializers.CharField(
-        source='author.first_name', read_only=True)
-    last_name = serializers.CharField(
-        source='author.last_name', read_only=True)
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(
-        source='author.recipes.count', read_only=True
-    )
-    avatar = Base64ImageField(source='author.avatar', read_only=True)
-
-    class Meta:
-        model = Subscription
-        fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count', 'avatar'
-        )
-
-    def get_is_subscribed(self, obj):
-        subscriber = self.context['user']
-        return Subscription.objects.filter(
-            subscriber=subscriber, author=obj.author
-        ).exists()
-
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        recipes = obj.author.recipes.all()
-
-        if recipes_limit := request.query_params.get('recipes_limit'):
-            try:
-                recipes = recipes[:int(recipes_limit)]
-            except ValueError:
-                pass
-
-        return RecipeShortInfoSerializer(
-            recipes, many=True, context=self.context
-        ).data
-
-
 class UserSubscriptionsSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = RecipeShortInfoSerializer(many=True, read_only=True)
@@ -246,16 +204,23 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         read_only=True, default=serializers.CurrentUserDefault()
     )
     ingredients = RecipeIngredientAmountSerializer(
-        many=True, source='recipes_ingredient', required=True, allow_empty=False, )
+        many=True,
+        source='recipes_ingredient',
+        required=True,
+        allow_empty=False,
+    )
     image = Base64ImageField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time',
+            'id',
+            'author',
+            'ingredients',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
         )
 
     def validate_cooking_time(self, value):

@@ -146,11 +146,13 @@ MAX_LENGTH_USER_USERNAME = 150
 MAX_LENGTH_USER_FIRSTNAME = 150
 MAX_LENGTH_USER_LASTNAME = 150
 MAX_LENGTH_SHORT_LINK_KEY = 10
+MAX_LENGTH_MEASUREMENT_UNIT = 64
 MIN_COOKING_TIME = 1
 MIN_AMOUNT_COUNT = 1
 MIN_INGREDIENTS_COUNT = 1
 REGEX_USERNAME = '^[\\w.@+-]+$'
 DEFAULT_AVATAR = 'user/default_avatar.png'
+DEFAULT_PAGE_SIZE = 6
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -162,15 +164,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'backend.paginations.LimitPageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.paginations.LimitPageNumberPagination',
     'PAGE_SIZE': 6,
 }
 
 DJOSER = {
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user': 'backend.serializers.UserSerializer',
-        'current_user': 'backend.serializers.UserSerializer',
+        'user': 'api.serializers.UserSerializer',
+        'current_user': 'api.serializers.UserSerializer',
     },
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.IsAuthenticated'],
