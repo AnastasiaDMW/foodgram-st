@@ -20,7 +20,7 @@ from recipes.models import (
     RecipeIngredient,
     ShoppingCart
 )
-from users.models import Subscription, User
+from users.models import User
 
 
 class Base64ImageField(serializers.ImageField):
